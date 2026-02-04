@@ -1,19 +1,57 @@
-import { View, Text, Pressable, TextInput, ScrollView } from "react-native";
-import { getFeaturedBusinesses } from "../../src/services/businessService";
+import { useEffect, useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
-import { db } from "../../src/services/firebase";
-
-console.log("Firebase conectado:", !!db);
+import type { Business, Category } from "../../src/types/models";
+import {
+  fetchCategories,
+  fetchFeaturedBusinesses,
+} from "../../src/services/firestore";
 
 export default function HomePublic() {
-  const [businesses, setBusinesses] = useState<any[]>([]);
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [featured, setFeatured] = useState<Business[]>([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    getFeaturedBusinesses().then(setBusinesses);
+    let isMounted = true;
+
+    (async () => {
+      try {
+        const [cats, feats] = await Promise.all([
+          fetchCategories(),
+          fetchFeaturedBusinesses(),
+        ]);
+
+        if (!isMounted) return;
+        setCategories(cats);
+        setFeatured(feats);
+      } catch (e) {
+        console.log("Erro ao buscar Home:", e);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const router = useRouter();
+  const filteredFeatured = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    if (!s) return featured;
+    return featured.filter((b) => (b.name || "").toLowerCase().includes(s));
+  }, [featured, search]);
 
   return (
     <ScrollView
@@ -38,84 +76,107 @@ export default function HomePublic() {
         }}
       >
         <TextInput
+          value={search}
+          onChangeText={setSearch}
           placeholder="Buscar comércio ou serviço"
           placeholderTextColor="#6c7f99"
           style={{ color: "#fff" }}
         />
       </View>
 
-      <Text
-        style={{
-          color: "#fff",
-          fontSize: 16,
-          fontWeight: "700",
-          marginBottom: 10,
-        }}
-      >
-        Categorias
-      </Text>
-      <View
-        style={{
-          flexDirection: "row",
-          gap: 10,
-          flexWrap: "wrap",
-          marginBottom: 18,
-        }}
-      >
-        {["Restaurantes", "Moda", "Saúde", "Serviços"].map((c) => (
-          <Pressable
-            key={c}
+      {loading ? (
+        <View style={{ paddingVertical: 20 }}>
+          <ActivityIndicator />
+          <Text style={{ color: "#9fb3c8", marginTop: 8 }}>
+            Carregando dados...
+          </Text>
+        </View>
+      ) : (
+        <>
+          <Text
             style={{
-              backgroundColor: "#111b2e",
-              padding: 12,
-              borderRadius: 14,
-              width: "48%",
+              color: "#fff",
+              fontSize: 16,
+              fontWeight: "700",
+              marginBottom: 10,
             }}
-            onPress={() => {}}
           >
-            <Text style={{ color: "#fff", fontWeight: "600" }}>{c}</Text>
+            Categorias
+          </Text>
+
+          <View
+            style={{
+              flexDirection: "row",
+              gap: 10,
+              flexWrap: "wrap",
+              marginBottom: 18,
+            }}
+          >
+            {categories.map((c) => (
+              <Pressable
+                key={c.id}
+                style={{
+                  backgroundColor: "#111b2e",
+                  padding: 12,
+                  borderRadius: 14,
+                  width: "48%",
+                }}
+                onPress={() => {
+                  // depois a gente cria a tela de listagem por categoria
+                  console.log("Categoria:", c.name, c.id);
+                }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600" }}>
+                  {c.name}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+              fontWeight: "700",
+              marginBottom: 10,
+            }}
+          >
+            Comércios em destaque
+          </Text>
+
+          {filteredFeatured.map((b) => (
+            <Pressable
+              key={b.id}
+              onPress={() => router.push(`/(visitantes)/business/${b.id}`)}
+              style={{
+                backgroundColor: "#111b2e",
+                padding: 14,
+                borderRadius: 14,
+                marginBottom: 14,
+              }}
+            >
+              <Text style={{ color: "#fff", fontWeight: "800" }}>{b.name}</Text>
+              <Text style={{ color: "#9fb3c8", marginTop: 4 }}>
+                {(b.address || "").slice(0, 60)}
+              </Text>
+            </Pressable>
+          ))}
+
+          <Pressable
+            onPress={() => router.push("/(comerciantes)/login")}
+            style={{
+              backgroundColor: "#ff8a3d",
+              padding: 14,
+              borderRadius: 14,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "#111", fontWeight: "800" }}>
+              Acessar painel
+            </Text>
           </Pressable>
-        ))}
-      </View>
-
-      <Text
-        style={{
-          color: "#fff",
-          fontSize: 16,
-          fontWeight: "700",
-          marginBottom: 10,
-        }}
-      >
-        Comércios em destaque
-      </Text>
-
-      {businesses.map((b) => (
-        <Pressable
-          key={b.id}
-          onPress={() => router.push(`/(visitantes)/business/${b.id}`)}
-          style={{
-            backgroundColor: "#111b2e",
-            padding: 14,
-            borderRadius: 14,
-            marginBottom: 14,
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "700" }}>{b.name}</Text>
-          <Text style={{ color: "#9fb3c8", marginTop: 4 }}>{b.address}</Text>
-        </Pressable>
-      ))}
-
-      <Pressable
-        onPress={() => router.push("/(comerciantes)/login")}
-        style={{
-          backgroundColor: "#ff8a3d",
-          padding: 14,
-          borderRadius: 14,
-          alignItems: "center",
-        }}
-      >
-        <Text style={{ color: "#111", fontWeight: "800" }}>Acessar painel</Text>
-      </Pressable>
+        </>
+      )}
     </ScrollView>
   );
 }
