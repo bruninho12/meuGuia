@@ -55,7 +55,6 @@ export default function HomePublic() {
     return featured.filter((b) => (b.name || "").toLowerCase().includes(s));
   }, [featured, search]);
 
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Carrossel></Carrossel>
