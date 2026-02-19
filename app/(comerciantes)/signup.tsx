@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   Pressable,
+  Alert,
   Platform,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
@@ -13,6 +14,7 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
+import { register } from "../../src/services/authService";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
@@ -20,11 +22,11 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import CarrosselLogin from "./carrosselLogin";
 import { useLoginForm } from "./hooks/useLoginForm";
 import CustomAlert from "./components/CustomAlert";
+import CarrosselLogin from "./carrosselLogin";
 
-export default function FuturisticLogin() {
+export default function Signup() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -39,8 +41,7 @@ export default function FuturisticLogin() {
     alert,
     emailOk,
     canSubmit,
-    handleLogin,
-    handleReset,
+    handleSignup,
   } = useLoginForm();
 
   const [emailTouched, setEmailTouched] = useState(false);
@@ -74,9 +75,9 @@ export default function FuturisticLogin() {
                 colors={["rgba(17,27,46,0.55)", "rgba(11,18,32,0.55)"]}
                 style={{ padding: 16 }}
               >
-                <Text style={styles.loginTitle}>Entrar</Text>
+                <Text style={styles.loginTitle}>Criar Uma Conta</Text>
                 <Text style={styles.loginSub}>
-                  Acesse sua conta para editar seu comércio.
+                  Crie sua conta para acessar seu comércio.
                 </Text>
 
                 {/* Email */}
@@ -140,7 +141,7 @@ export default function FuturisticLogin() {
                       style={styles.input}
                       autoCapitalize="none"
                       secureTextEntry={!showPass}
-                      onSubmitEditing={handleLogin}
+                      onSubmitEditing={handleSignup}
                     />
                     <Pressable
                       onPress={() => setShowPass((v) => !v)}
@@ -159,19 +160,10 @@ export default function FuturisticLogin() {
                   ) : null}
                 </View>
 
-                {/* Forgot */}
-                <Pressable
-                  onPress={handleReset}
-                  hitSlop={10}
-                  style={{ alignSelf: "center", marginTop: 14 }}
-                >
-                  <Text style={styles.forgot}>Esqueceu sua senha?</Text>
-                </Pressable>
-
-                {/* Continue */}
+                {/* Criar conta */}
                 <Pressable
                   disabled={!canSubmit}
-                  onPress={handleLogin}
+                  onPress={handleSignup}
                   style={[styles.ctaWrap, { opacity: canSubmit ? 1 : 0.55 }]}
                 >
                   <LinearGradient
@@ -181,19 +173,19 @@ export default function FuturisticLogin() {
                     style={styles.cta}
                   >
                     {loading ? <ActivityIndicator /> : null}
-                    <Text style={styles.ctaText}>Continue</Text>
+                    <Text style={styles.ctaText}>Criar Conta</Text>
                   </LinearGradient>
                 </Pressable>
 
                 {/* Create account */}
                 <View style={{ marginTop: 16, alignItems: "center" }}>
-                  <Text style={styles.muted}>Ainda não tem conta?</Text>
+                  <Text style={styles.muted}>Já Tem uma conta?</Text>
 
                   <Pressable
-                    onPress={() => router.push("/(comerciantes)/signup")}
+                    onPress={() => router.push("/(comerciantes)/login")}
                     style={styles.secondaryBtn}
                   >
-                    <Text style={styles.secondaryText}>Criar uma conta</Text>
+                    <Text style={styles.secondaryText}>Login</Text>
                   </Pressable>
 
                   <Text style={styles.terms}>
@@ -237,7 +229,8 @@ const styles = StyleSheet.create({
   },
   loginSub: {
     color: "#9fb3c8",
-    marginTop: 8,
+    textAlign: "center",
+    marginTop: 2,
     fontSize: 14,
     lineHeight: 20,
   },

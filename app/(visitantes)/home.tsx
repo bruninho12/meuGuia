@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import type { Business, Category } from "../../src/types/models";
 import Carrossel from "./business/carrossel";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   fetchCategories,
   fetchFeaturedBusinesses,
@@ -56,75 +57,79 @@ export default function HomePublic() {
   }, [featured, search]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Carrossel></Carrossel>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Itajuípe - BA</Text>
-        <Text style={styles.headerSubtitle}>Comércios locais em destaque</Text>
-      </View>
-
-      <View style={styles.searchBox}>
-        <TextInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Buscar comércio ou serviço"
-          placeholderTextColor="#6c7f99"
-          style={styles.searchInput}
-        />
-      </View>
-
-      {loading ? (
-        <View style={styles.loading}>
-          <ActivityIndicator />
-          <Text style={styles.loadingText}>Carregando dados...</Text>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Carrossel></Carrossel>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Itajuípe - BA</Text>
+          <Text style={styles.headerSubtitle}>
+            Comércios locais em destaque
+          </Text>
         </View>
-      ) : (
-        <>
-          <Text style={styles.sectionTitle}>Categorias</Text>
 
-          <View style={styles.categoriesContainer}>
-            {categories.map((c) => (
+        <View style={styles.searchBox}>
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Buscar comércio ou serviço"
+            placeholderTextColor="#6c7f99"
+            style={styles.searchInput}
+          />
+        </View>
+
+        {loading ? (
+          <View style={styles.loading}>
+            <ActivityIndicator />
+            <Text style={styles.loadingText}>Carregando dados...</Text>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.sectionTitle}>Categorias</Text>
+
+            <View style={styles.categoriesContainer}>
+              {categories.map((c) => (
+                <Pressable
+                  key={c.id}
+                  style={styles.categoryCard}
+                  onPress={() => {
+                    console.log("Categoria:", c.name, c.id);
+                  }}
+                >
+                  <Text style={styles.categoryText}>{c.name}</Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Text style={styles.sectionTitle}>Comércios em destaque</Text>
+
+            {filteredFeatured.map((b) => (
               <Pressable
-                key={c.id}
-                style={styles.categoryCard}
-                onPress={() => {
-                  console.log("Categoria:", c.name, c.id);
-                }}
+                key={b.id}
+                onPress={() => router.push(`/(visitantes)/business/${b.id}`)}
+                style={styles.businessCard}
               >
-                <Text style={styles.categoryText}>{c.name}</Text>
+                <Text style={styles.businessName}>{b.name}</Text>
+                <Text style={styles.businessAddress}>
+                  {(b.address || "").slice(0, 60)}
+                </Text>
               </Pressable>
             ))}
-          </View>
 
-          <Text style={styles.sectionTitle}>Comércios em destaque</Text>
-
-          {filteredFeatured.map((b) => (
             <Pressable
-              key={b.id}
-              onPress={() => router.push(`/(visitantes)/business/${b.id}`)}
-              style={styles.businessCard}
+              onPress={() => router.push("/(comerciantes)/login")}
+              style={styles.loginButton}
             >
-              <Text style={styles.businessName}>{b.name}</Text>
-              <Text style={styles.businessAddress}>
-                {(b.address || "").slice(0, 60)}
-              </Text>
+              <Text style={styles.loginText}>Acessar painel</Text>
             </Pressable>
-          ))}
-
-          <Pressable
-            onPress={() => router.push("/(comerciantes)/login")}
-            style={styles.loginButton}
-          >
-            <Text style={styles.loginText}>Acessar painel</Text>
-          </Pressable>
-        </>
-      )}
-    </ScrollView>
+          </>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
     backgroundColor: "#0b1220",
   },
