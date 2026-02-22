@@ -61,6 +61,29 @@ export default function AdminDashboard() {
     <View style={styles.container}>
       <Text style={styles.title}>Admin Supremo</Text>
 
+      <View style={styles.quickActions}>
+        <TouchableOpacity
+          style={styles.quickBtn}
+          onPress={() => router.push("/(admin)/users")}
+        >
+          <Text style={styles.quickBtnText}>Usuários</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.quickBtn}
+          onPress={() => router.push("/(admin)/businesses")}
+        >
+          <Text style={styles.quickBtnText}>Comércios</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.quickBtn}
+          onPress={() => router.push("/(admin)/categories")}
+        >
+          <Text style={styles.quickBtnText}>Categorias</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.statsContainer}>
         <StatCard label="Total Comércios" value={total} />
         <StatCard label="Ativos" value={active} />
@@ -125,6 +148,25 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     marginBottom: 20,
+  },
+  quickActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+    gap: 8,
+  },
+  quickBtn: {
+    flex: 1,
+    backgroundColor: "#14233c",
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+  },
+  quickBtnText: {
+    color: "#fff",
+    fontWeight: "700",
   },
   statsContainer: {
     flexDirection: "row",
