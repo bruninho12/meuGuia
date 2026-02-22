@@ -2,6 +2,7 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+<<<<<<< codex/review-project-feedback-5tg6gi
 import {
   getAuth,
   initializeAuth,
@@ -9,6 +10,10 @@ import {
   type Persistence,
 } from "firebase/auth";
 import * as FirebaseAuth from "firebase/auth";
+=======
+import { getAuth, initializeAuth, type Auth } from "firebase/auth";
+import { getReactNativePersistence } from "firebase/auth/react-native";
+>>>>>>> main
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
@@ -22,6 +27,7 @@ const firebaseConfig = {
 
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
+<<<<<<< codex/review-project-feedback-5tg6gi
 const getRnPersistence = (FirebaseAuth as any).getReactNativePersistence as
   | ((storage: typeof AsyncStorage) => Persistence)
   | undefined;
@@ -35,6 +41,14 @@ try {
           persistence: getRnPersistence(AsyncStorage),
         })
       : getAuth(app);
+=======
+let authInstance: Auth;
+
+try {
+  authInstance = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+>>>>>>> main
 } catch {
   authInstance = getAuth(app);
 }
