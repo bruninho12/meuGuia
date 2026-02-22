@@ -5,6 +5,7 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(visitantes)" />
       <Stack.Screen name="(comerciantes)" />
+      <Stack.Screen name="(admin)" />
     </Stack>
   );
 }
